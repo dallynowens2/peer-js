@@ -1,5 +1,16 @@
 import Peer from 'peerjs';
 
+const randId = () => {
+    let roomLength = 6;
+    let lowChar = "(".charCodeAt(0);
+    let highChar = "Z".charCodeAt(0);
+    let possibleChars = highChar - lowChar + 1;
+    let randChar = () => {
+        let r = Math.round(Math.random() * possibleChars) + lowChar;
+        return String.fromCharCode(r);
+    };
+    return [...new Array(roomLength).keys()].map(randChar).join("");
+}
 
 const id = randId();
 const peer = new Peer(id)
@@ -39,17 +50,6 @@ const sendMessage =(message)=>{
     connections.forEach(c => c.send(message));
 }
 
-const randId = () => {
-    let roomLength = 6;
-    let lowChar = "(".charCodeAt(0);
-    let highChar = "Z".charCodeAt(0);
-    let possibleChars = highChar - lowChar + 1;
-    let randChar = () => {
-        let r = Math.round(Math.random() * possibleChars) + lowChar;
-        return String.fromCharCode(r);
-    };
-    return [...new Array(roomLength).keys()].map(randChar).join("");
-}
 
 const PeerjsService = {sendMessage, initialize, connectPeer}
 export default PeerjsService;
