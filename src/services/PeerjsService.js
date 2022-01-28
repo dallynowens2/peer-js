@@ -15,17 +15,17 @@ const randId = () => {
 const id = randId();
 const peer = new Peer()
 const connections = []
-const messages =[]
+const messages = []
 
 const initialize = () => {
     console.log(id)
     console.log(peer.id)
     peer.on('open', (id) => {
-        console.log('id:' + id)
+        console.log('My id: ' + id)
     })
     peer.on('connection', (conn) => {
-        connections.push(conn)
-        console.log('connected to:' + conn.peer)
+        connections.push(conn);
+        console.log('Connected to peer:' + conn.peer);
 
     })
     peer.on('error', (err) => {
@@ -34,11 +34,12 @@ const initialize = () => {
 }
 
 const connectPeer = (peerId) =>{
+    console.log("connecting to peer: " + peerId);
     const conn = peer.connect(peerId);
-    conn.on('open', ()=>{
+    conn.on('open', () => {
+        conn.send('Hello');
         connections.push(conn);
-        console.log(peerId)
-    })
+    });
     conn.on('data', (data)=>{
         console.log(data)
         messages.push(data);
