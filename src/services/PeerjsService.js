@@ -13,7 +13,7 @@ const randId = () => {
 }
 
 const id = randId();
-const peer = new Peer(id)
+const peer = new Peer()
 const connections = []
 const messages =[]
 
