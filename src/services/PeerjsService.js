@@ -1,8 +1,8 @@
 import Peer from 'peerjs';
 
 const randId = () => {
-    let roomLength = 6;
-    let lowChar = "(".charCodeAt(0);
+    let roomLength = 5;
+    let lowChar = "A".charCodeAt(0);
     let highChar = "Z".charCodeAt(0);
     let possibleChars = highChar - lowChar + 1;
     let randChar = () => {
@@ -13,7 +13,7 @@ const randId = () => {
 }
 
 const id = randId();
-const peer = new Peer()
+const peer = new Peer(id)
 const connections = []
 const messages = []
 
