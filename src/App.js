@@ -1,15 +1,15 @@
-import logo from './logo.svg';
-import PeerjsService from './services/PeerjsService';
 import { useEffect, useState } from 'react';
-import './App.css';
+import { useDispatch } from 'react-redux';
+import { connectPeer, initialize, sendMessageAll } from './store/peer-slice';
 
 function App() {
-
   const [peerId, setPeerId] = useState()
   const [message, setMessage] = useState('')
 
+  const dispatch = useDispatch();
+
   useEffect(()=>{
-    PeerjsService.initialize();
+    dispatch(initialize())
   },[])
 
   const messageChangeHandler =(e)=>{
@@ -17,7 +17,7 @@ function App() {
   }
 
   const sendMessageHandler =()=>{
-    PeerjsService.sendMessage(message);
+    dispatch(sendMessageAll(message));
     setMessage('')
   }
 
@@ -27,7 +27,7 @@ function App() {
 
   const onPeerSubmit = (e) =>{
     e.preventDefault()
-    PeerjsService.connectPeer(peerId);
+    dispatch(connectPeer(peerId));
     setPeerId('');
   }
 

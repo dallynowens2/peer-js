@@ -1,4 +1,7 @@
 import Peer from 'peerjs';
+import { store } from '../store';
+import { addMessage } from '../store/peer-slice';
+const peer = new Peer()
 
 const randId = () => {
     let roomLength = 6;
@@ -12,13 +15,8 @@ const randId = () => {
     return [...new Array(roomLength).keys()].map(randChar).join("");
 }
 
-const id = randId();
-const peer = new Peer()
-const connections = []
-const messages = []
-
 const initialize = () => {
-    console.log(id)
+    peer.id = randId();
     console.log(peer.id)
     peer.on('open', (id) => {
         console.log('My id: ' + id)
@@ -31,26 +29,30 @@ const initialize = () => {
     peer.on('error', (err) => {
         console.log(err);
     })
+
+    return peer.id;
 }
 
 const connectPeer = (peerId) =>{
-    console.log("connecting to peer: " + peerId);
     const conn = peer.connect(peerId);
+    console.log("connecting to peer: " + peerId);
+    
     conn.on('open', () => {
         conn.send('Hello');
-        connections.push(conn);
+        store.dispatch(addMessage('Hello'));
     });
     conn.on('data', (data)=>{
         console.log(data)
-        messages.push(data);
+        store.dispatch(addMessage(data));
     })
+
+    return conn;
 }
 
-const sendMessage =(message)=>{
+const sendMessageAll =(message)=>{
     messages.push(message);
-    connections.forEach(c => c.send(message));
 }
 
 
-const PeerjsService = {sendMessage, initialize, connectPeer}
+const PeerjsService = { sendMessageAll, initialize, connectPeer}
 export default PeerjsService;
