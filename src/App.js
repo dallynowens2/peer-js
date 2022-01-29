@@ -16,7 +16,8 @@ const randId = () => {
 function App() {
   const [peerId, setPeerId] = useState('');
   const [message, setMessage] = useState('');
-  
+  const [recepients, setRecepients] = useState('');
+
   const [peer] = useState(new Peer(randId()))
   const [connections, setConnections] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -49,7 +50,13 @@ function App() {
 
   const sendMessageHandler = () => {
     const m = `${peer.id}: ${message}`;
-    connections.forEach(c => c.send(message))
+    if (recepients.trim().length > 0) {
+      const rec = recepients.split(",");
+      rec.forEach(r => connections[r - 1].send(m));
+    }
+    else {
+      connections.forEach(c => c.send(message));
+    }
     setMessages(prev => [...prev, m]);
     setMessage('')
   }
@@ -60,6 +67,9 @@ function App() {
   const onPeerIdChange = (e) => {
     setPeerId(e.target.value)
   }
+  const onRecepientChange = (e) => {
+    setRecepients(e.target.value);
+  }
 
   return (
     <div className="App">
@@ -67,12 +77,17 @@ function App() {
       <p>{peer.id}</p>
       <div>
         <label>Peer Id</label><br />
-        <input type='text' onChange={onPeerIdChange} />
+        <input type='text' value={peerId} onChange={onPeerIdChange} />
         <button type='button' onClick={addPeer}>Add Peer</button>
       </div>
       <div>
+        <label>Enter Recepients</label><br />
+        <input type='text' value={recepients} onChange={onRecepientChange} />
+        <p>Message will be sent to: {recepients.trim().length > 0 ? recepients : "All"}</p>
+      </div>
+      <div>
         <label>Enter Message</label><br />
-        <input type='text' onChange={messageChangeHandler} />
+        <input type='text' value={message} onChange={messageChangeHandler} />
         <button type='button' onClick={sendMessageHandler}>Send Message</button>
       </div>
       <div>
