@@ -28,7 +28,7 @@ function App() {
     })
     peer.on('connection', (conn) => {
       setConnections(prev => [...prev, conn]);
-      console.log('Connected to peer:' + conn.peer);
+      console.log('Connected to peer: ' + conn.peer);
     })
   }, [peer])
 
@@ -50,15 +50,25 @@ function App() {
 
   const sendMessageHandler = () => {
     const m = `${peer.id}: ${message}`;
+    sendMessage(m);
+    setMessages(prev => [...prev, m]);
+    setMessage('')
+  }
+
+  const sendMessage = (m) => {
     if (recepients.trim().length > 0) {
       const rec = recepients.split(",");
       rec.forEach(r => connections[r - 1].send(m));
     }
     else {
-      connections.forEach(c => c.send(message));
+      connections.forEach(c => c.send(m));
     }
-    setMessages(prev => [...prev, m]);
-    setMessage('')
+  }
+
+  const forwardMessage = (m) => {
+    sendMessage(m);
+    // setMessage(m);
+    // sendMessageHandler();
   }
 
   const messageChangeHandler = (e) => {
@@ -94,7 +104,7 @@ function App() {
         <h4>Connections</h4>
         {connections.map((c, i) => {
           return (
-            <div>
+            <div key={i}>
               <p>{`${i + 1}) ${c.peer}`}</p>
             </div>
           )
@@ -102,7 +112,14 @@ function App() {
       </div>
       <div>
         <h4>Messages</h4>
-        {messages.map(m => <p>{m}</p>)}
+        {messages.map((m, i) => {
+          return (
+            <div key={`m_${i}`}>
+              <span>{`${i + 1}) ${m}`}</span>
+              <button type='button' onClick={() => forwardMessage(m)}>Forward</button>
+            </div>
+          )
+        })}
       </div>
     </div>
   );
