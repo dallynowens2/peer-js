@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import Peer from "peerjs";
 import PeerjsService from "../services/PeerjsService";
 
 const peerSlice = createSlice({
@@ -11,18 +10,25 @@ const peerSlice = createSlice({
     },
     reducers: {
         initialize(state) {
-            state.id = PeerjsService.initialize();
+            const id = PeerjsService.randId();
+            state.id = id
+            PeerjsService.initialize(id);
         },
         connectPeer(state, action) {
-            state.connections.push(PeerjsService.connectPeer(action.payload))
+            const receiveMessage = (message) => {
+                console.log("here", message);
+                state.messages.push(message);
+            };
+            state.connections.push(PeerjsService.connectPeer(action.payload, receiveMessage));
+            state.messages.push('hello');
         },
         sendMessageAll(state, action) {
             state.messages.push(action.payload);
-            // PeerjsService.sendMessageAll(action.payload)
-            state.connections.forEach(c => c.send(action.payload));
+            PeerjsService.sendMessageAll(action.payload)
         },
-        addMessage(state, action) {
-            state.messages.push(action.payload);
+        sendMessage(state, action) {
+            state.messages.push(action.payload.message);
+            PeerjsService.sendMessage(action.payload.message, action.payload.peerId)
         }
     }
 })
@@ -32,5 +38,5 @@ export const {
     initialize,
     connectPeer,
     sendMessageAll,
-    addMessage
+    sendMessage
 } = peerSlice.actions;
