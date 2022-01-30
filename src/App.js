@@ -106,7 +106,7 @@ function App() {
         <button type='button' onClick={addPeer}>Add Peer</button>
       </div>
       <div>
-        <label>Enter Recepients</label><br />
+        <label>Enter Recepients. NOTE: please separate them with commas (e.g. 1, 2, 3)</label><br />
         <input type='text' value={recepients} onChange={onRecepientChange} />
         <p>Message will be sent to: {recepients.trim().length > 0 ? recepients : "All"}</p>
       </div>
