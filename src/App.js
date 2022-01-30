@@ -18,7 +18,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [recepients, setRecepients] = useState('');
 
-  const [peer] = useState(new Peer(randId()))
+  const [peer, setPeer] = useState(new Peer(randId()))
   const [connections, setConnections] = useState([]);
   const [messages, setMessages] = useState([]);
 
@@ -27,35 +27,37 @@ function App() {
       console.log('My id: ' + id)
     })
     peer.on('connection', (conn) => {
-      setConnections(prev => [...prev, conn]);
+      configureConnection(conn);
       console.log('Connected to peer: ' + conn.peer);
     })
   }, [peer])
 
   const addPeer = () => {
     const conn = peer.connect(peerId);
+    console.log("Connecting to: ", conn.peer);
 
-    conn.on('open', () => {
-      conn.send('Hello');
-      setMessages(prev => [...prev, `${peer.id}: Hello!`])
-    });
-    conn.on('data', (data) => {
-      const m = `${conn.peer}: ${data}`;
-      setMessages(prev => [...prev, m])
-    })
-
-    setConnections(prev => [...prev, conn]);
+    configureConnection(conn);
     setPeerId('');
   }
 
+  const configureConnection = (conn) => {
+    conn.on('open', () => {
+      conn.on('data', (data) => {
+        setMessages(prev => [...prev, data])
+      })
+
+      setConnections(prev => [...prev, conn]);
+    });
+  }
+
   const sendMessageHandler = () => {
-    const m = `${peer.id}: ${message}`;
-    sendMessage(m);
-    setMessages(prev => [...prev, m]);
+    sendMessage(message);
+    setMessages(prev => [...prev, message]);
     setMessage('')
   }
 
   const sendMessage = (m) => {
+    console.log(m);
     if (recepients.trim().length > 0) {
       const rec = recepients.split(",");
       rec.forEach(r => connections[r - 1].send(m));
@@ -67,8 +69,6 @@ function App() {
 
   const forwardMessage = (m) => {
     sendMessage(m);
-    // setMessage(m);
-    // sendMessageHandler();
   }
 
   const messageChangeHandler = (e) => {
