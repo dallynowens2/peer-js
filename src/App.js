@@ -51,8 +51,14 @@ function App() {
   }
 
   const sendMessageHandler = () => {
-    sendMessage(message);
-    setMessages(prev => [...prev, message]);
+    const messageObj = {
+      message,
+      timeSent: new Date(),
+      author: peer.id,
+      sentBy: peer.id
+    }
+    sendMessage(messageObj);
+    setMessages(prev => [...prev, messageObj]);
     setMessage('')
   }
 
@@ -115,7 +121,7 @@ function App() {
         {messages.map((m, i) => {
           return (
             <div key={`m_${i}`}>
-              <span>{`${i + 1}) ${m}`}</span>
+              <span>{`${i + 1}) ${m.sentBy}: ${m.message}`}</span>
               <button type='button' onClick={() => forwardMessage(m)}>Forward</button>
             </div>
           )
