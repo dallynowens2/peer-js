@@ -43,6 +43,7 @@ function App() {
   const configureConnection = (conn) => {
     conn.on('open', () => {
       conn.on('data', (data) => {
+        console.log(data);
         setMessages(prev => [...prev, data])
       })
 
@@ -74,7 +75,15 @@ function App() {
   }
 
   const forwardMessage = (m) => {
-    sendMessage(m);
+    const newM = {...m}
+    newM.sentBy = peer.id
+    sendMessage(newM);
+  }
+
+  const connectPeer = (id) => {
+    const conn = peer.connect(id);
+    console.log("Connecting to: ", conn.peer);
+    configureConnection(conn);
   }
 
   const messageChangeHandler = (e) => {
@@ -123,6 +132,12 @@ function App() {
             <div key={`m_${i}`}>
               <span>{`${i + 1}) ${m.sentBy}: ${m.message}`}</span>
               <button type='button' onClick={() => forwardMessage(m)}>Forward</button>
+              {m.sentBy != m.author && (
+                <>
+                  <span>Connect to {m.author}?</span>
+                  <button type='button' onClick={() => connectPeer(m.author)}>Connect</button>
+                </>
+              )}
             </div>
           )
         })}
