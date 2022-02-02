@@ -17,7 +17,7 @@ function App() {
   const [peerId, setPeerId] = useState('');
   const [message, setMessage] = useState('');
   const [recepients, setRecepients] = useState('');
-
+  const [lamportClock, setLamportClock] = useState(1)
   const [peer, setPeer] = useState(new Peer(randId()))
   const [connections, setConnections] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -44,6 +44,12 @@ function App() {
     conn.on('open', () => {
       conn.on('data', (data) => {
         console.log(data);
+        if (data.tempLamportClock > lamportClock){
+          setLamportClock(data.tempLamportClock+1)
+        }
+        else{
+          setLamportClock(lamportClock+1)
+        }
         setMessages(prev => [...prev, data])
       })
 
@@ -56,7 +62,8 @@ function App() {
       message,
       timeSent: new Date(),
       author: peer.id,
-      sentBy: peer.id
+      sentBy: peer.id, 
+      tempLamportClock: lamportClock+1
     }
     sendMessage(messageObj);
     setMessages(prev => [...prev, messageObj]);
@@ -65,9 +72,10 @@ function App() {
 
   const sendMessage = (m) => {
     console.log(m);
+    setLamportClock(lamportClock+1)
     if (recepients.trim().length > 0) {
       const rec = recepients.split(",");
-      rec.forEach(r => connections[r - 1].send(m));
+      rec.forEach(r =>{ connections[r - 1].send(m) });
     }
     else {
       connections.forEach(c => c.send(m));
@@ -94,6 +102,9 @@ function App() {
   }
   const onRecepientChange = (e) => {
     setRecepients(e.target.value);
+  }
+  const onEventClickhandler =() =>{
+    setLamportClock(lamportClock+1)
   }
 
   return (
@@ -126,11 +137,15 @@ function App() {
         })}
       </div>
       <div>
+        <button type='button' onClick={onEventClickhandler}>Event</button><br/>
+        Lamport Clock: {lamportClock}
+      </div>
+      <div>
         <h4>Messages</h4>
         {messages.map((m, i) => {
           return (
             <div key={`m_${i}`}>
-              <span>{`${i + 1}) ${m.sentBy}: ${m.message}`}</span>
+              <span>{`Lamport Clock <${m.tempLamportClock}, ${m.sentBy}>: ${m.message}`}</span>
               <button type='button' onClick={() => forwardMessage(m)}>Forward</button>
               {m.sentBy != m.author && (
                 <>
